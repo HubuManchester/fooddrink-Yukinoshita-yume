@@ -110,6 +110,7 @@ public partial class MainPage : ContentPage
     private async Task LoadFoodItemsAsync(string? query = null)
     {
         FoodCollection.ItemsSource = await FoodService.SearchAsync(query);
+        AccessibilityService.ApplyFontScale(this);
     }
 
     private async void OnAddClicked(object? sender, EventArgs e)

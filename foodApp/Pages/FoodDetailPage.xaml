@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="foodApp.Pages.FoodDetailPage"
              Title="Food Details"
-             BackgroundColor="White">
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#1A161C}">
     <ScrollView>
         <VerticalStackLayout Padding="18" Spacing="14">
             <Border StrokeThickness="0" Padding="16">
@@ -32,13 +32,19 @@
                 </Grid>
             </Border>
 
-            <Border StrokeThickness="1" Stroke="#E8E0E8" BackgroundColor="White" Padding="14">
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#25202A}"
+                    Padding="14">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Photo" FontSize="15" FontAttributes="Bold" TextColor="#C3B9D9" />
-                    <Border StrokeThickness="1" Stroke="#E8E0E8" BackgroundColor="#FAF8FA" Padding="0">
+                    <Border StrokeThickness="1"
+                            Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
+                            BackgroundColor="{AppThemeBinding Light=#FAF8FA, Dark=#2A2430}"
+                            Padding="0">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
@@ -49,13 +55,18 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Border StrokeThickness="1" Stroke="#E8E0E8" BackgroundColor="White" Padding="14">
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#25202A}"
+                    Padding="14">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Description" FontSize="15" FontAttributes="Bold" TextColor="#DEB7C1" />
-                    <Label x:Name="DescriptionLabel" FontSize="14" TextColor="#666" />
+                    <Label x:Name="DescriptionLabel"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#666, Dark=#B0A8B8}" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>

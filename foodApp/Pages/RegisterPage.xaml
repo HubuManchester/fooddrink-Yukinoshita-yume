@@ -4,7 +4,7 @@
              x:Class="foodApp.Pages.RegisterPage"
              Title="Register"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="White">
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#1A161C}">
     <ScrollView>
         <VerticalStackLayout Padding="28" Spacing="18" VerticalOptions="Center" MaximumWidthRequest="420">
 
@@ -42,7 +42,7 @@
 
             <Button Text="Back to login"
                     BackgroundColor="Transparent"
-                    TextColor="#888"
+                    TextColor="{AppThemeBinding Light=#888, Dark=#B0A8B8}"
                     Clicked="OnBackClicked" />
 
         </VerticalStackLayout>

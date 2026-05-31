@@ -7,7 +7,9 @@ public partial class SettingsPage : ContentPage
     public SettingsPage()
     {
         InitializeComponent();
-        ThemePicker.SelectedIndex = 0;
+
+        var savedTheme = Preferences.Default.Get("app_theme", 0);
+        ThemePicker.SelectedIndex = savedTheme;
         LargeTextSwitch.IsToggled = AccessibilityService.LargeTextEnabled;
     }
 
@@ -27,12 +29,14 @@ public partial class SettingsPage : ContentPage
             _ => AppTheme.Unspecified
         };
 
+        Preferences.Default.Set("app_theme", ThemePicker.SelectedIndex);
         Announce("Theme has been updated.");
     }
 
     private void OnLargeTextToggled(object? sender, ToggledEventArgs e)
     {
         AccessibilityService.LargeTextEnabled = e.Value;
+        Preferences.Default.Set("large_text_enabled", e.Value);
         ApplyLargeTextState();
         Announce(e.Value
             ? "Large text mode is on. Text is now larger."

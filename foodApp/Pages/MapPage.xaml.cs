@@ -1,4 +1,5 @@
 using foodApp.Services;
+using Microsoft.Maui.Controls.Maps;
 
 namespace foodApp.Pages;
 
@@ -6,7 +7,8 @@ public partial class MapPage : ContentPage
 {
     public static string? SelectedRegion { get; set; }
 
-    private bool mapConfirmed;
+    private double? selectedLat;
+    private double? selectedLng;
 
     public MapPage()
     {
@@ -18,60 +20,35 @@ public partial class MapPage : ContentPage
         base.OnAppearing();
         AccessibilityService.ApplyFontScale(this);
         SelectedRegion = null;
-        mapConfirmed = false;
-        CheckMapLoaded();
+        selectedLat = null;
+        selectedLng = null;
     }
 
-    private async void CheckMapLoaded()
+    private void OnMapClicked(object? sender, MapClickedEventArgs e)
     {
-        await Task.Delay(4000);
-        if (mapConfirmed) return;
-
-        try
-        {
-            var failed = await MapWebView.EvaluateJavaScriptAsync("mapLoadFailed()");
-            if (failed?.Trim() == "true")
-            {
-                await DisplayAlert(
-                    "Map unavailable",
-                    "The map could not be loaded. Please check your network connection, or go back and enter the region name manually.",
-                    "OK");
-            }
-        }
-        catch
-        {
-            // If EvaluateJavaScriptAsync itself fails, the WebView may not be ready
-        }
+        selectedLat = e.Location.Latitude;
+        selectedLng = e.Location.Longitude;
+        SelectedCoordLabel.Text = $"Selected: {selectedLat:F5}, {selectedLng:F5}";
     }
 
     private async void OnConfirmClicked(object? sender, EventArgs e)
     {
+        if (selectedLat is null || selectedLng is null)
+        {
+            StatusLabel.Text = "Please tap on the map to select a location first.";
+            StatusLabel.TextColor = Colors.Red;
+            return;
+        }
+
         try
         {
-            var resultJson = await MapWebView.EvaluateJavaScriptAsync("getSelectedLocation()");
-            if (string.IsNullOrWhiteSpace(resultJson))
-            {
-                StatusLabel.Text = "Please tap on the map to select a location first.";
-                return;
-            }
-
-            var latStr = ExtractJsonValue(resultJson, "lat");
-            var lngStr = ExtractJsonValue(resultJson, "lng");
-            var hasSel = ExtractJsonValue(resultJson, "hasSelection");
-
-            if (hasSel != "true" || !double.TryParse(latStr, out var lat) || !double.TryParse(lngStr, out var lng))
-            {
-                StatusLabel.Text = "Please tap on the map to select a location first.";
-                return;
-            }
-
-            mapConfirmed = true;
+            var lat = selectedLat.Value;
+            var lng = selectedLng.Value;
 
             var regionName = await ReverseGeocodeAsync(lat, lng);
             if (regionName is null)
             {
                 regionName = $"{lat:F5}, {lng:F5}";
-                StatusLabel.Text = $"Cannot determine place name. Using coordinates: {regionName}";
             }
 
             SelectedRegion = regionName;
@@ -79,7 +56,8 @@ public partial class MapPage : ContentPage
         }
         catch (Exception ex)
         {
-            StatusLabel.Text = $"Error: {ex.Message}";
+            StatusLabel.Text = $"Could not determine location: {ex.Message}";
+            StatusLabel.TextColor = Colors.Red;
         }
     }
 
@@ -115,27 +93,5 @@ public partial class MapPage : ContentPage
         {
             return null;
         }
-    }
-
-    private static string? ExtractJsonValue(string json, string key)
-    {
-        var searchKey = $"\"{key}\":";
-        var idx = json.IndexOf(searchKey, StringComparison.Ordinal);
-        if (idx < 0) return null;
-        idx += searchKey.Length;
-        while (idx < json.Length && json[idx] == ' ') idx++;
-        if (idx >= json.Length) return null;
-
-        if (json[idx] == '"')
-        {
-            idx++;
-            var end = json.IndexOf('"', idx);
-            return end >= 0 ? json.Substring(idx, end - idx) : null;
-        }
-
-        var endIdx = idx;
-        while (endIdx < json.Length && (char.IsDigit(json[endIdx]) || json[endIdx] == '.' || json[endIdx] == '-'))
-            endIdx++;
-        return json.Substring(idx, endIdx - idx);
     }
 }

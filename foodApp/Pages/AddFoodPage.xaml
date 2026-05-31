@@ -3,10 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="foodApp.Pages.AddFoodPage"
              Title="Add Food"
-             BackgroundColor="White">
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#1A161C}">
     <ScrollView>
         <VerticalStackLayout Padding="18" Spacing="14">
-            <Border StrokeThickness="0" Padding="16" BackgroundColor="#FAF8FA">
+            <Border StrokeThickness="0" Padding="16"
+                    BackgroundColor="{AppThemeBinding Light=#FAF8FA, Dark=#28222C}">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
@@ -18,11 +19,14 @@
                     <Label Grid.Row="1"
                            Text="Share a food from anywhere in the world."
                            FontSize="14"
-                           TextColor="#888" />
+                           TextColor="{AppThemeBinding Light=#888, Dark=#B0A8B8}" />
                 </Grid>
             </Border>
 
-            <Border StrokeThickness="1" Stroke="#E8E0E8" BackgroundColor="White" Padding="14">
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#25202A}"
+                    Padding="14">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
@@ -46,7 +50,10 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Border StrokeThickness="1" Stroke="#E8E0E8" BackgroundColor="White" Padding="14">
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#25202A}"
+                    Padding="14">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
@@ -55,7 +62,7 @@
                     <Image x:Name="PreviewImage"
                            HeightRequest="180"
                            Aspect="AspectFit"
-                           BackgroundColor="#FAF8FA" />
+                           BackgroundColor="{AppThemeBinding Light=#FAF8FA, Dark=#2A2430}" />
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                         <Button Text="Take Photo"
                                 BackgroundColor="#DEB7C1"

@@ -4,7 +4,7 @@
              x:Class="foodApp.Pages.LoginPage"
              Title="Login"
              Shell.NavBarIsVisible="False"
-             BackgroundColor="White">
+             BackgroundColor="{AppThemeBinding Light=White, Dark=#1A161C}">
     <ScrollView>
         <VerticalStackLayout Padding="28" Spacing="18" VerticalOptions="Center" MaximumWidthRequest="420">
 
@@ -16,7 +16,7 @@
             <Label Text="Discover and share food from around the world"
                    FontSize="15"
                    HorizontalTextAlignment="Center"
-                   TextColor="#888"
+                   TextColor="{AppThemeBinding Light=#888, Dark=#B0A8B8}"
                    Margin="0,0,0,10" />
 
             <Entry x:Name="UsernameEntry"
