@@ -22,7 +22,7 @@ public static class FoodService
         {
             Id = "local1",
             Name = "Peking Duck",
-            ImageUrl = "",
+            ImageUrl = "food_peking_duck.png",
             Region = "Beijing, China",
             UploadedBy = "system",
             Description = "Crispy roast duck served with thin pancakes, spring onions, and sweet bean sauce.",
@@ -32,7 +32,7 @@ public static class FoodService
         {
             Id = "local2",
             Name = "Sushi Platter",
-            ImageUrl = "",
+            ImageUrl = "food_sushi.png",
             Region = "Tokyo, Japan",
             UploadedBy = "system",
             Description = "Assorted nigiri and maki rolls with fresh salmon, tuna, and shrimp.",
@@ -42,7 +42,7 @@ public static class FoodService
         {
             Id = "local3",
             Name = "Margherita Pizza",
-            ImageUrl = "",
+            ImageUrl = "food_pizza.png",
             Region = "Naples, Italy",
             UploadedBy = "system",
             Description = "Classic pizza with San Marzano tomatoes, fresh mozzarella, and basil.",
@@ -52,11 +52,21 @@ public static class FoodService
         {
             Id = "local4",
             Name = "Tom Yum Goong",
-            ImageUrl = "",
+            ImageUrl = "food_tomyum.png",
             Region = "Bangkok, Thailand",
             UploadedBy = "system",
             Description = "Spicy and sour shrimp soup with lemongrass, galangal, and lime leaves.",
             Tags = "thai soup spicy shrimp"
+        },
+        new()
+        {
+            Id = "local5",
+            Name = "Matcha Layer Cake",
+            ImageUrl = "food_matcha_cake.png",
+            Region = "Kyoto, Japan",
+            UploadedBy = "system",
+            Description = "Delicate layered sponge cake with premium matcha cream and a dusting of green tea powder.",
+            Tags = "dessert matcha cake japanese"
         }
     ];
 

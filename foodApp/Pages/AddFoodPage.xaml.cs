@@ -5,6 +5,8 @@ namespace foodApp.Pages;
 
 public partial class AddFoodPage : ContentPage
 {
+    private string? capturedImagePath;
+
     public AddFoodPage()
     {
         InitializeComponent();
@@ -14,6 +16,72 @@ public partial class AddFoodPage : ContentPage
     {
         base.OnAppearing();
         AccessibilityService.ApplyFontScale(this);
+    }
+
+    private async void OnTakePhotoClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (!MediaPicker.Default.IsCaptureSupported)
+            {
+                await DisplayAlert("Camera unavailable",
+                    "This device does not support taking photos.", "OK");
+                return;
+            }
+
+            var photo = await MediaPicker.Default.CapturePhotoAsync();
+            if (photo is null) return;
+
+            capturedImagePath = await SavePhotoAsync(photo);
+            PreviewImage.Source = ImageSource.FromFile(capturedImagePath);
+        }
+        catch (PermissionException)
+        {
+            await DisplayAlert("Permission denied",
+                "Camera permission is required. Please enable it in device settings.", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error",
+                $"Could not take photo: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnPickFromGalleryClicked(object? sender, EventArgs e)
+    {
+        try
+        {
+            var photo = await MediaPicker.Default.PickPhotoAsync();
+            if (photo is null) return;
+
+            capturedImagePath = await SavePhotoAsync(photo);
+            PreviewImage.Source = ImageSource.FromFile(capturedImagePath);
+        }
+        catch (PermissionException)
+        {
+            await DisplayAlert("Permission denied",
+                "Gallery access is required. Please enable it in device settings.", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error",
+                $"Could not load photo from gallery: {ex.Message}", "OK");
+        }
+    }
+
+    private static async Task<string> SavePhotoAsync(FileResult photo)
+    {
+        var imagesDir = Path.Combine(FileSystem.AppDataDirectory, "food_images");
+        Directory.CreateDirectory(imagesDir);
+
+        var fileName = $"{Guid.NewGuid():N}.jpg";
+        var filePath = Path.Combine(imagesDir, fileName);
+
+        await using var sourceStream = await photo.OpenReadAsync();
+        await using var destStream = File.OpenWrite(filePath);
+        await sourceStream.CopyToAsync(destStream);
+
+        return filePath;
     }
 
     private async void OnSaveClicked(object? sender, EventArgs e)
@@ -33,7 +101,7 @@ public partial class AddFoodPage : ContentPage
                 Name = NameEntry.Text!.Trim(),
                 Region = RegionEntry.Text?.Trim() ?? "",
                 Description = DescriptionEditor.Text!.Trim(),
-                ImageUrl = ImageUrlEntry.Text?.Trim() ?? "",
+                ImageUrl = capturedImagePath ?? "",
                 UploadedBy = UserService.CurrentUser?.Username ?? "anonymous",
                 Tags = $"{NameEntry.Text} {RegionEntry.Text} {DescriptionEditor.Text}"
             };
@@ -46,7 +114,7 @@ public partial class AddFoodPage : ContentPage
                 "Saved",
                 MockApiConfig.IsConfigured
                     ? "The food entry has been saved to mockapi.io."
-                    : "The food entry has been saved to local data.",
+                    : "The food entry has been saved to local storage.",
                 "OK");
 
             await Shell.Current.GoToAsync("..");

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FAF8FA" rx="12"/>
+  <g transform="translate(40,30)" stroke="#DEB7C1" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="60" cy="45" rx="38" ry="28"/>
+    <path d="M22,50 Q22,20 45,20"/>
+    <path d="M98,50 Q98,20 75,20"/>
+    <circle cx="52" cy="38" r="3" fill="#C3B9D9" stroke="none"/>
+    <path d="M30,65 L25,100 L95,100 L90,65"/>
+    <path d="M45,100 L45,120"/>
+    <path d="M75,100 L75,120"/>
+    <path d="M40,120 Q60,125 80,120"/>
+  </g>
+  <text x="100" y="185" text-anchor="middle" fill="#888" font-size="11" font-family="sans-serif">Peking Duck</text>
+</svg>

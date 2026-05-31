@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" fill="#FAF8FA" rx="12"/>
+  <g transform="translate(35,30)" stroke="#C3B9D9" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="45" cy="90" rx="38" ry="18"/>
+    <ellipse cx="45" cy="85" rx="35" ry="14" fill="#FAF8FA"/>
+    <ellipse cx="45" cy="82" rx="18" ry="8" stroke="#DEB7C1"/>
+    <ellipse cx="95" cy="90" rx="30" ry="16"/>
+    <ellipse cx="95" cy="85" rx="27" ry="12" fill="#FAF8FA"/>
+    <ellipse cx="95" cy="83" rx="14" ry="6" stroke="#DEB7C1"/>
+    <path d="M15,72 L35,40 L55,72"/>
+    <path d="M60,72 L80,35 L100,72"/>
+    <path d="M105,72 L125,45 L145,72"/>
+  </g>
+  <text x="100" y="185" text-anchor="middle" fill="#888" font-size="11" font-family="sans-serif">Sushi Platter</text>
+</svg>

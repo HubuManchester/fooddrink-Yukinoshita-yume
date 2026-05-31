@@ -3,56 +3,48 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="foodApp.Pages.RegisterPage"
              Title="Register"
-             Shell.NavBarIsVisible="False">
-    <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Color="{AppThemeBinding Light=#FFF1DA, Dark=#130F0C}" Offset="0.0" />
-                <GradientStop Color="{AppThemeBinding Light=#FFF9EF, Dark=#0F1711}" Offset="1.0" />
-            </LinearGradientBrush>
-        </Grid.Background>
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="White">
+    <ScrollView>
+        <VerticalStackLayout Padding="28" Spacing="18" VerticalOptions="Center" MaximumWidthRequest="420">
 
-        <ScrollView>
-            <VerticalStackLayout Padding="28" Spacing="18" VerticalOptions="Center" MaximumWidthRequest="420">
+            <Label Text="Create Account"
+                   FontSize="30"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   TextColor="#C3B9D9" />
 
-                <Label Text="Create Account"
-                       FontSize="30"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center"
-                       TextColor="{AppThemeBinding Light=#D9472B, Dark=#FF9C7B}" />
+            <Entry x:Name="UsernameEntry"
+                   Placeholder="Username"
+                   ReturnType="Next" />
 
-                <Entry x:Name="UsernameEntry"
-                       Placeholder="Username"
-                       ReturnType="Next" />
+            <Entry x:Name="PasswordEntry"
+                   Placeholder="Password (at least 3 characters)"
+                   IsPassword="True"
+                   ReturnType="Next" />
 
-                <Entry x:Name="PasswordEntry"
-                       Placeholder="Password (at least 3 characters)"
-                       IsPassword="True"
-                       ReturnType="Next" />
+            <Entry x:Name="ConfirmPasswordEntry"
+                   Placeholder="Confirm password"
+                   IsPassword="True"
+                   ReturnType="Done" />
 
-                <Entry x:Name="ConfirmPasswordEntry"
-                       Placeholder="Confirm password"
-                       IsPassword="True"
-                       ReturnType="Done" />
+            <Label x:Name="ErrorLabel"
+                   IsVisible="False"
+                   TextColor="#E06060"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center" />
 
-                <Label x:Name="ErrorLabel"
-                       IsVisible="False"
-                       TextColor="{AppThemeBinding Light=#B43820, Dark=#FFB4A6}"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center" />
+            <Button Text="Register"
+                    BackgroundColor="#C3B9D9"
+                    TextColor="#FFFFFF"
+                    FontAttributes="Bold"
+                    Clicked="OnRegisterClicked" />
 
-                <Button Text="Register"
-                        BackgroundColor="#2F7A4F"
-                        TextColor="#FFFFFF"
-                        FontAttributes="Bold"
-                        Clicked="OnRegisterClicked" />
+            <Button Text="Back to login"
+                    BackgroundColor="Transparent"
+                    TextColor="#888"
+                    Clicked="OnBackClicked" />
 
-                <Button Text="Back to login"
-                        BackgroundColor="Transparent"
-                        TextColor="{AppThemeBinding Light=#6E5A47, Dark=#D8C4AC}"
-                        Clicked="OnBackClicked" />
-
-            </VerticalStackLayout>
-        </ScrollView>
-    </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

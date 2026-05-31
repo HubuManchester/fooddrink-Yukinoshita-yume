@@ -42,16 +42,21 @@ public partial class FoodDetailPage : ContentPage
         NameLabel.Text = currentItem.Name;
         RegionLabel.Text = $"Region: {currentItem.RegionLabel}";
         UploadedByLabel.Text = $"Uploaded by: {currentItem.UploadedBy}";
-        IdLabel.Text = $"ID: {currentItem.Id}";
         DescriptionLabel.Text = currentItem.Description;
 
         if (!string.IsNullOrWhiteSpace(currentItem.ImageUrl))
         {
-            FoodImage.Source = ImageSource.FromUri(new Uri(currentItem.ImageUrl));
+            if (currentItem.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            {
+                FoodImage.Source = ImageSource.FromUri(new Uri(currentItem.ImageUrl));
+            }
+            else
+            {
+                FoodImage.Source = ImageSource.FromFile(currentItem.ImageUrl);
+            }
         }
         else
         {
-            FoodImage.Source = null;
             FoodImage.HeightRequest = 0;
         }
     }
