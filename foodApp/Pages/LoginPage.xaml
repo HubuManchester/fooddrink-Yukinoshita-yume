@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="foodApp.Pages.LoginPage"
+             Title="Login"
+             Shell.NavBarIsVisible="False">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="{AppThemeBinding Light=#FFF1DA, Dark=#130F0C}" Offset="0.0" />
+                <GradientStop Color="{AppThemeBinding Light=#FFF9EF, Dark=#0F1711}" Offset="1.0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="28" Spacing="18" VerticalOptions="Center" MaximumWidthRequest="420">
+
+                <Label Text="Food Encyclopedia"
+                       FontSize="34"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#D9472B, Dark=#FF9C7B}" />
+                <Label Text="Discover and share food from around the world"
+                       FontSize="15"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{AppThemeBinding Light=#8B6D55, Dark=#D8C4AC}"
+                       Margin="0,0,0,10" />
+
+                <Entry x:Name="UsernameEntry"
+                       Placeholder="Username"
+                       ReturnType="Next" />
+
+                <Entry x:Name="PasswordEntry"
+                       Placeholder="Password"
+                       IsPassword="True"
+                       ReturnType="Done" />
+
+                <Label x:Name="ErrorLabel"
+                       IsVisible="False"
+                       TextColor="{AppThemeBinding Light=#B43820, Dark=#FFB4A6}"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+
+                <Button Text="Login"
+                        BackgroundColor="#D9472B"
+                        TextColor="#FFFFFF"
+                        FontAttributes="Bold"
+                        Clicked="OnLoginClicked" />
+
+                <Button Text="Create new account"
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light=#D9472B, Dark=#FFB15D}"
+                        BorderColor="{AppThemeBinding Light=#D9472B, Dark=#FFB15D}"
+                        BorderWidth="1"
+                        Clicked="OnGoToRegisterClicked" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>
