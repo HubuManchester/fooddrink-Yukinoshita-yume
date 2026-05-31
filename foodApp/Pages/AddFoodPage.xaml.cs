@@ -16,6 +16,17 @@ public partial class AddFoodPage : ContentPage
     {
         base.OnAppearing();
         AccessibilityService.ApplyFontScale(this);
+
+        if (MapPage.SelectedRegion is not null)
+        {
+            RegionEntry.Text = MapPage.SelectedRegion;
+            MapPage.SelectedRegion = null;
+        }
+    }
+
+    private async void OnSelectFromMapClicked(object? sender, EventArgs e)
+    {
+        await Navigation.PushAsync(new MapPage());
     }
 
     private async void OnTakePhotoClicked(object? sender, EventArgs e)

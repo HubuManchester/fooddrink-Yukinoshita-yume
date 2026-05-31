@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Select Location</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;width:100%}
+  #map{height:100%;width:100%}
+  #error{display:none;position:absolute;top:0;left:0;width:100%;height:100%;
+    background:#FAF8FA;z-index:9999;justify-content:center;align-items:center;flex-direction:column;font-family:sans-serif}
+  #error .icon{font-size:48px;margin-bottom:16px}
+  #error .msg{font-size:16px;color:#888;text-align:center;padding:0 24px}
+  #loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    font-family:sans-serif;font-size:15px;color:#888;z-index:1000;background:white;padding:12px 24px;
+    border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="loading">Loading map...</div>
+<div id="error">
+  <div class="icon">&#x1F5FA;</div>
+  <div class="msg">Map could not be loaded.<br>Please check your network connection and try again.</div>
+</div>
+<script>
+  var map = null;
+  var marker = null;
+  var selectedLat = 0;
+  var selectedLng = 0;
+
+  function showError(){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('error').style.display='flex';
+    if(map)map.remove();
+  }
+
+  function initMap(){
+    try{
+      if(typeof L==='undefined'){
+        showError();
+        return;
+      }
+      document.getElementById('loading').style.display='none';
+      map=L.map('map').setView([35,40],2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution:'&copy; <a href="https://openstreetmap.org">OpenStreetMap</a>',
+        maxZoom:18
+      }).addTo(map);
+
+      map.on('click',function(e){
+        selectedLat=e.latlng.lat;
+        selectedLng=e.latlng.lng;
+        if(marker)map.removeLayer(marker);
+        marker=L.marker([selectedLat,selectedLng]).addTo(map)
+          .bindPopup('Lat:'+selectedLat.toFixed(5)+'<br>Lng:'+selectedLng.toFixed(5))
+          .openPopup();
+      });
+
+      setTimeout(function(){
+        map.invalidateSize();
+      },300);
+    }catch(e){
+      showError();
+    }
+  }
+
+  function getSelectedLocation(){
+    return JSON.stringify({lat:selectedLat,lng:selectedLng,hasSelection:marker!==null});
+  }
+
+  function mapLoadFailed(){
+    return typeof L==='undefined';
+  }
+
+  window.onload=function(){
+    setTimeout(function(){
+      initMap();
+    },200);
+  };
+</script>
+</body>
+</html>

@@ -29,7 +29,16 @@
                 <VerticalStackLayout Spacing="12">
                     <Label Text="Food Information" FontSize="15" FontAttributes="Bold" TextColor="#C3B9D9" />
                     <Entry x:Name="NameEntry" Placeholder="Food name" />
-                    <Entry x:Name="RegionEntry" Placeholder="Region (e.g. Tokyo, Japan)" />
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Entry x:Name="RegionEntry" Placeholder="Region (e.g. Tokyo, Japan)" />
+                        <Button Grid.Column="1"
+                                Text="Map"
+                                FontSize="12"
+                                Padding="10,8"
+                                BackgroundColor="#C3B9D9"
+                                TextColor="#FFFFFF"
+                                Clicked="OnSelectFromMapClicked" />
+                    </Grid>
                     <Editor x:Name="DescriptionEditor"
                             Placeholder="Description, ingredients, or story behind the food"
                             AutoSize="TextChanges"

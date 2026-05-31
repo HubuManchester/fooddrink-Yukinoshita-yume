@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="foodApp.Pages.MapPage"
+             Title="Select Location on Map"
+             BackgroundColor="White">
+    <Grid RowDefinitions="*,Auto">
+        <WebView x:Name="MapWebView"
+                 Grid.Row="0"
+                 Source="map.html" />
+
+        <Border Grid.Row="1" StrokeThickness="0" Padding="14" BackgroundColor="White">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="0" />
+            </Border.StrokeShape>
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+                <Label x:Name="StatusLabel"
+                       Text="Tap on the map to place a marker, then confirm."
+                       FontSize="13"
+                       TextColor="#888"
+                       HorizontalTextAlignment="Center" />
+                <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Text="Back"
+                            BackgroundColor="Transparent"
+                            TextColor="#888"
+                            BorderColor="#E8E0E8"
+                            BorderWidth="1"
+                            Clicked="OnBackClicked" />
+                    <Button Grid.Column="1"
+                            Text="Confirm Location"
+                            BackgroundColor="#DEB7C1"
+                            TextColor="#FFFFFF"
+                            Clicked="OnConfirmClicked" />
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</ContentPage>
