@@ -24,7 +24,7 @@
                 <Label Text="Browse, search, and share food from around the world."
                        FontSize="14"
                        TextColor="#FFFFFF" />
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10" Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,6,0,0">
                     <Border StrokeThickness="1"
                             Stroke="#E8E0E8"
                             BackgroundColor="White"
@@ -41,6 +41,13 @@
                                    BackgroundColor="Transparent" />
                     </Border>
                     <Button Grid.Column="1"
+                            Text="Random"
+                            FontSize="12"
+                            Padding="10,8"
+                            BackgroundColor="#C3B9D9"
+                            TextColor="#FFFFFF"
+                            Clicked="OnRandomClicked" />
+                    <Button Grid.Column="2"
                             Text="Add"
                             BackgroundColor="#DEB7C1"
                             TextColor="#FFFFFF"

@@ -16,6 +16,9 @@ public static class FoodService
         PropertyNameCaseInsensitive = true
     };
 
+    private static readonly string FilePath =
+        Path.Combine(FileSystem.AppDataDirectory, "food_data.json");
+
     private static readonly List<FoodItem> LocalFallbackItems =
     [
         new()
@@ -70,9 +73,48 @@ public static class FoodService
         }
     ];
 
-    private static List<FoodItem> cachedItems = new(LocalFallbackItems);
+    private static List<FoodItem>? cachedItems;
+    private static bool isLoaded;
 
     public static bool LastLoadUsedMockApi { get; private set; }
+
+    public static async Task LoadAsync()
+    {
+        if (isLoaded) return;
+
+        try
+        {
+            if (File.Exists(FilePath))
+            {
+                var json = await File.ReadAllTextAsync(FilePath);
+                cachedItems = JsonSerializer.Deserialize<List<FoodItem>>(json, JsonOptions)
+                    ?? new List<FoodItem>(LocalFallbackItems);
+            }
+            else
+            {
+                cachedItems = new List<FoodItem>(LocalFallbackItems);
+                await SaveAsync();
+            }
+        }
+        catch
+        {
+            cachedItems = new List<FoodItem>(LocalFallbackItems);
+        }
+
+        isLoaded = true;
+    }
+
+    public static async Task SaveAsync()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(cachedItems ?? LocalFallbackItems, JsonOptions);
+            await File.WriteAllTextAsync(FilePath, json);
+        }
+        catch
+        {
+        }
+    }
 
     public static async Task<IReadOnlyList<FoodItem>> SearchAsync(string? query)
     {
@@ -96,6 +138,8 @@ public static class FoodService
 
     public static async Task<FoodItem?> GetByIdAsync(string id)
     {
+        await EnsureLoadedAsync();
+
         if (MockApiConfig.IsConfigured)
         {
             try
@@ -114,11 +158,13 @@ public static class FoodService
             }
         }
 
-        return cachedItems.FirstOrDefault(item => item.Id == id);
+        return cachedItems!.FirstOrDefault(item => item.Id == id);
     }
 
     public static async Task<FoodItem> AddAsync(FoodItem item)
     {
+        await EnsureLoadedAsync();
+
         if (MockApiConfig.IsConfigured)
         {
             var response = await HttpClient.PostAsJsonAsync(MockApiConfig.EndpointUrl, item, JsonOptions);
@@ -127,26 +173,36 @@ public static class FoodService
             var created = await response.Content.ReadFromJsonAsync<FoodItem>(JsonOptions);
             if (created is not null)
             {
-                cachedItems.Add(created);
+                cachedItems!.Add(created);
+                await SaveAsync();
                 return created;
             }
         }
 
-        cachedItems.Add(item);
+        cachedItems!.Add(item);
+        await SaveAsync();
         return item;
     }
 
     public static FoodItem GetRandom()
     {
-        return cachedItems[Random.Shared.Next(cachedItems.Count)];
+        var items = cachedItems ?? LocalFallbackItems;
+        return items[Random.Shared.Next(items.Count)];
+    }
+
+    private static async Task EnsureLoadedAsync()
+    {
+        if (!isLoaded) await LoadAsync();
     }
 
     private static async Task<IReadOnlyList<FoodItem>> GetAllAsync()
     {
+        await EnsureLoadedAsync();
+
         if (!MockApiConfig.IsConfigured)
         {
             LastLoadUsedMockApi = false;
-            return cachedItems;
+            return cachedItems!;
         }
 
         try
@@ -155,6 +211,7 @@ public static class FoodService
             if (items is { Count: > 0 })
             {
                 cachedItems = items;
+                await SaveAsync();
                 LastLoadUsedMockApi = true;
                 return cachedItems;
             }
@@ -164,6 +221,6 @@ public static class FoodService
         }
 
         LastLoadUsedMockApi = false;
-        return cachedItems;
+        return cachedItems!;
     }
 }
