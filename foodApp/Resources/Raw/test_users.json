@@ -1,0 +1,12 @@
+[
+  {"id":"testuser1","username":"chef_li","password":"123"},
+  {"id":"testuser2","username":"sushi_master","password":"123"},
+  {"id":"testuser3","username":"pizza_chef","password":"123"},
+  {"id":"testuser4","username":"thai_spice","password":"123"},
+  {"id":"testuser5","username":"sweets_lover","password":"123"},
+  {"id":"testuser6","username":"baker_pierre","password":"123"},
+  {"id":"testuser7","username":"taco_lover","password":"123"},
+  {"id":"testuser8","username":"korean_foodie","password":"123"},
+  {"id":"testuser9","username":"gelato_artist","password":"123"},
+  {"id":"testuser10","username":"curry_master","password":"123"}
+]

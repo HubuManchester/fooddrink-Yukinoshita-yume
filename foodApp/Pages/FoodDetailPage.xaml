@@ -63,7 +63,20 @@
                     <RoundRectangle CornerRadius="10" />
                 </Border.StrokeShape>
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="Description" FontSize="15" FontAttributes="Bold" TextColor="#DEB7C1" />
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="Description" FontSize="15" FontAttributes="Bold" TextColor="#DEB7C1"
+                               VerticalOptions="Center" />
+                        <Button Grid.Column="1"
+                                x:Name="PlayDescriptionButton"
+                                Text="&#x1F50A;  Play"
+                                FontSize="12"
+                                Padding="10,6"
+                                BackgroundColor="#DEB7C1"
+                                TextColor="#FFFFFF"
+                                HorizontalOptions="Start"
+                                VerticalOptions="Center"
+                                Clicked="OnPlayDescriptionClicked" />
+                    </Grid>
                     <Label x:Name="DescriptionLabel"
                            FontSize="14"
                            TextColor="{AppThemeBinding Light=#666, Dark=#B0A8B8}" />

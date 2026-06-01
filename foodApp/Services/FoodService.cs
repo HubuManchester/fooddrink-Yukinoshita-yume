@@ -6,6 +6,10 @@ namespace foodApp.Services;
 
 public static class FoodService
 {
+    private const string TestDataResource = "test_food_data.json";
+    private static readonly string SavedFilePath =
+        Path.Combine(FileSystem.AppDataDirectory, "food_data.json");
+
     private static readonly HttpClient HttpClient = new()
     {
         Timeout = TimeSpan.FromSeconds(12)
@@ -16,89 +20,101 @@ public static class FoodService
         PropertyNameCaseInsensitive = true
     };
 
-    private static readonly string FilePath =
-        Path.Combine(FileSystem.AppDataDirectory, "food_data.json");
-
-    private static readonly List<FoodItem> LocalFallbackItems =
+    // Minimal hardcoded fallback – only used when both the saved file
+    // and the embedded resource are unavailable.
+    private static readonly List<FoodItem> MinimalFallbackItems =
     [
         new()
         {
-            Id = "local1",
-            Name = "Peking Duck",
-            ImageUrl = "food_peking_duck.png",
-            Region = "Beijing, China",
-            UploadedBy = "system",
+            Id = "fb1", Name = "Peking Duck", ImageUrl = "food_peking_duck.png",
+            Region = "Beijing, China", UploadedBy = "system",
             Description = "Crispy roast duck served with thin pancakes, spring onions, and sweet bean sauce.",
             Tags = "beijing duck roast chinese"
         },
         new()
         {
-            Id = "local2",
-            Name = "Sushi Platter",
-            ImageUrl = "food_sushi.png",
-            Region = "Tokyo, Japan",
-            UploadedBy = "system",
+            Id = "fb2", Name = "Sushi Platter", ImageUrl = "food_sushi.png",
+            Region = "Tokyo, Japan", UploadedBy = "system",
             Description = "Assorted nigiri and maki rolls with fresh salmon, tuna, and shrimp.",
             Tags = "sushi japanese seafood"
         },
         new()
         {
-            Id = "local3",
-            Name = "Margherita Pizza",
-            ImageUrl = "food_pizza.png",
-            Region = "Naples, Italy",
-            UploadedBy = "system",
+            Id = "fb3", Name = "Margherita Pizza", ImageUrl = "food_pizza.png",
+            Region = "Naples, Italy", UploadedBy = "system",
             Description = "Classic pizza with San Marzano tomatoes, fresh mozzarella, and basil.",
             Tags = "pizza italian vegetarian"
         },
         new()
         {
-            Id = "local4",
-            Name = "Tom Yum Goong",
-            ImageUrl = "food_tomyum.png",
-            Region = "Bangkok, Thailand",
-            UploadedBy = "system",
+            Id = "fb4", Name = "Tom Yum Goong", ImageUrl = "food_tomyum.png",
+            Region = "Bangkok, Thailand", UploadedBy = "system",
             Description = "Spicy and sour shrimp soup with lemongrass, galangal, and lime leaves.",
             Tags = "thai soup spicy shrimp"
         },
         new()
         {
-            Id = "local5",
-            Name = "Matcha Layer Cake",
-            ImageUrl = "food_matcha_cake.png",
-            Region = "Kyoto, Japan",
-            UploadedBy = "system",
+            Id = "fb5", Name = "Matcha Layer Cake", ImageUrl = "food_matcha_cake.png",
+            Region = "Kyoto, Japan", UploadedBy = "system",
             Description = "Delicate layered sponge cake with premium matcha cream and a dusting of green tea powder.",
             Tags = "dessert matcha cake japanese"
         }
     ];
 
-    private static List<FoodItem>? cachedItems;
+    private static List<FoodItem> cachedItems = [];
     private static bool isLoaded;
 
     public static bool LastLoadUsedMockApi { get; private set; }
+
+    // ----------------------------------------------------------------
+    //  Load / Save
+    // ----------------------------------------------------------------
 
     public static async Task LoadAsync()
     {
         if (isLoaded) return;
 
-        try
+        // 1. Try loading seed data from the embedded JSON resource.
+        var seedFromResource = await TryLoadFromResourceAsync();
+
+        // 2. Try loading persisted data from the local JSON file.
+        var persisted = await TryLoadFromFileAsync();
+
+        if (persisted is { Count: > 0 } && seedFromResource is { Count: > 0 })
         {
-            if (File.Exists(FilePath))
+            // Merge: keep all user-added items + seed items from the resource.
+            var merged = new List<FoodItem>(seedFromResource);
+            var existingIds = new HashSet<string>(merged.Select(i => i.Id));
+            foreach (var item in persisted)
             {
-                var json = await File.ReadAllTextAsync(FilePath);
-                cachedItems = JsonSerializer.Deserialize<List<FoodItem>>(json, JsonOptions)
-                    ?? new List<FoodItem>(LocalFallbackItems);
+                if (!existingIds.Contains(item.Id))
+                {
+                    merged.Add(item);
+                    existingIds.Add(item.Id);
+                }
             }
-            else
+
+            // If the persisted file had fewer seed items (old version), save the merge.
+            if (persisted.Count < merged.Count)
             {
-                cachedItems = new List<FoodItem>(LocalFallbackItems);
-                await SaveAsync();
+                await SaveInternalAsync(merged);
             }
+
+            cachedItems = merged;
         }
-        catch
+        else if (persisted is { Count: > 0 })
         {
-            cachedItems = new List<FoodItem>(LocalFallbackItems);
+            cachedItems = persisted;
+        }
+        else if (seedFromResource is { Count: > 0 })
+        {
+            cachedItems = seedFromResource;
+            await SaveInternalAsync(cachedItems);
+        }
+        else
+        {
+            cachedItems = new List<FoodItem>(MinimalFallbackItems);
+            await SaveInternalAsync(cachedItems);
         }
 
         isLoaded = true;
@@ -106,15 +122,56 @@ public static class FoodService
 
     public static async Task SaveAsync()
     {
+        await SaveInternalAsync(cachedItems);
+    }
+
+    private static async Task SaveInternalAsync(List<FoodItem> items)
+    {
         try
         {
-            var json = JsonSerializer.Serialize(cachedItems ?? LocalFallbackItems, JsonOptions);
-            await File.WriteAllTextAsync(FilePath, json);
+            var json = JsonSerializer.Serialize(items, JsonOptions);
+            await File.WriteAllTextAsync(SavedFilePath, json);
         }
         catch
         {
         }
     }
+
+    private static async Task<List<FoodItem>?> TryLoadFromResourceAsync()
+    {
+        try
+        {
+            await using var stream = await FileSystem.OpenAppPackageFileAsync(TestDataResource);
+            using var reader = new StreamReader(stream);
+            var json = await reader.ReadToEndAsync();
+            return JsonSerializer.Deserialize<List<FoodItem>>(json, JsonOptions);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static async Task<List<FoodItem>?> TryLoadFromFileAsync()
+    {
+        try
+        {
+            if (File.Exists(SavedFilePath))
+            {
+                var json = await File.ReadAllTextAsync(SavedFilePath);
+                return JsonSerializer.Deserialize<List<FoodItem>>(json, JsonOptions);
+            }
+        }
+        catch
+        {
+        }
+
+        return null;
+    }
+
+    // ----------------------------------------------------------------
+    //  Query
+    // ----------------------------------------------------------------
 
     public static async Task<IReadOnlyList<FoodItem>> SearchAsync(string? query)
     {
@@ -148,17 +205,14 @@ public static class FoodService
                     $"{MockApiConfig.EndpointUrl.TrimEnd('/')}/{Uri.EscapeDataString(id)}",
                     JsonOptions);
 
-                if (item is not null)
-                {
-                    return item;
-                }
+                if (item is not null) return item;
             }
             catch
             {
             }
         }
 
-        return cachedItems!.FirstOrDefault(item => item.Id == id);
+        return cachedItems.FirstOrDefault(item => item.Id == id);
     }
 
     public static async Task<FoodItem> AddAsync(FoodItem item)
@@ -173,22 +227,45 @@ public static class FoodService
             var created = await response.Content.ReadFromJsonAsync<FoodItem>(JsonOptions);
             if (created is not null)
             {
-                cachedItems!.Add(created);
+                cachedItems.Add(created);
                 await SaveAsync();
                 return created;
             }
         }
 
-        cachedItems!.Add(item);
+        cachedItems.Add(item);
         await SaveAsync();
         return item;
     }
 
     public static FoodItem GetRandom()
     {
-        var items = cachedItems ?? LocalFallbackItems;
+        var items = cachedItems.Count > 0 ? cachedItems : MinimalFallbackItems;
         return items[Random.Shared.Next(items.Count)];
     }
+
+    public static async Task<(IReadOnlyList<FoodItem> Items, int TotalCount)> GetPagedAsync(
+        int page, int pageSize, string? query = null, bool randomOrder = false)
+    {
+        var all = await SearchAsync(query);
+
+        if (randomOrder)
+        {
+            all = all.OrderBy(_ => Random.Shared.Next()).ToList();
+        }
+        else
+        {
+            all = all.OrderBy(item => item.Name).ToList();
+        }
+
+        var totalCount = all.Count;
+        var items = all.Skip(page * pageSize).Take(pageSize).ToList();
+        return (items, totalCount);
+    }
+
+    // ----------------------------------------------------------------
+    //  Internal helpers
+    // ----------------------------------------------------------------
 
     private static async Task EnsureLoadedAsync()
     {
@@ -202,7 +279,7 @@ public static class FoodService
         if (!MockApiConfig.IsConfigured)
         {
             LastLoadUsedMockApi = false;
-            return cachedItems!;
+            return cachedItems;
         }
 
         try
@@ -221,6 +298,6 @@ public static class FoodService
         }
 
         LastLoadUsedMockApi = false;
-        return cachedItems!;
+        return cachedItems;
     }
 }

@@ -1,3 +1,6 @@
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using foodApp.Models;
 using foodApp.Services;
 
 namespace foodApp.Pages;
@@ -8,9 +11,20 @@ public partial class MainPage : ContentPage
     private DateTime lastShakeTime = DateTime.MinValue;
     private static readonly TimeSpan ShakeCooldown = TimeSpan.FromSeconds(2.5);
 
+    private const int PageSize = 16;
+    private int currentPage;
+    private bool hasMoreItems = true;
+    private bool isLoadingMore;
+    private string? lastQuery;
+    private readonly ObservableCollection<FoodItem> displayedItems = [];
+
+    public ICommand LongPressCommand { get; }
+
     public MainPage()
     {
         InitializeComponent();
+        FoodCollection.ItemsSource = displayedItems;
+        LongPressCommand = new Command<string>(async (foodName) => await OnLongPressAsync(foodName));
     }
 
     protected override async void OnAppearing()
@@ -24,14 +38,43 @@ public partial class MainPage : ContentPage
             return;
         }
 
+        UpdateGridLayoutSpan();
         StartShakeDetection();
-        await LoadFoodItemsAsync(SearchFoodBar.Text);
+        await ResetAndLoadAsync(SearchFoodBar.Text);
+    }
+
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+        UpdateGridLayoutSpan();
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
         StopShakeDetection();
+    }
+
+    private void UpdateGridLayoutSpan()
+    {
+        var width = Width;
+        // Adaptive columns for tablet:
+        //   width >= 1200 → 4 columns
+        //   width >= 900  → 3 columns
+        //   width >= 600  → 2 columns
+        //   otherwise     → 1 column
+        var span = width switch
+        {
+            >= 1200 => 4,
+            >= 900 => 3,
+            >= 600 => 2,
+            _ => 1
+        };
+
+        if (FoodCollection.ItemsLayout is GridItemsLayout gridLayout)
+        {
+            gridLayout.Span = span;
+        }
     }
 
     private void StartShakeDetection()
@@ -107,10 +150,96 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private async Task LoadFoodItemsAsync(string? query = null)
+    private async Task OnLongPressAsync(string foodName)
     {
-        FoodCollection.ItemsSource = await FoodService.SearchAsync(query);
-        AccessibilityService.ApplyFontScale(this);
+        if (string.IsNullOrWhiteSpace(foodName)) return;
+
+        // Vibrate / haptic feedback
+        try
+        {
+            HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
+            Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
+        }
+        catch
+        {
+            // Vibration not available on this device
+        }
+
+        var openBrowser = await DisplayAlert(
+            "Search in Browser",
+            $"Do you want to search \"{foodName}\" in your browser?",
+            "Search",
+            "Cancel");
+
+        if (openBrowser)
+        {
+            try
+            {
+                var encodedName = Uri.EscapeDataString(foodName);
+                var url = $"https://www.google.com/search?q={encodedName}+food";
+                await Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error",
+                    $"Could not open browser: {ex.Message}", "OK");
+            }
+        }
+    }
+
+    private async Task ResetAndLoadAsync(string? query)
+    {
+        currentPage = 0;
+        hasMoreItems = true;
+        lastQuery = query;
+        displayedItems.Clear();
+        await LoadNextPageAsync();
+    }
+
+    private async Task LoadNextPageAsync()
+    {
+        if (isLoadingMore || !hasMoreItems) return;
+
+        isLoadingMore = true;
+        ShowLoadingIndicator(true);
+
+        try
+        {
+            var (items, totalCount) = await FoodService.GetPagedAsync(
+                currentPage, PageSize, lastQuery, randomOrder: true);
+
+            foreach (var item in items)
+            {
+                displayedItems.Add(item);
+            }
+
+            currentPage++;
+            hasMoreItems = displayedItems.Count < totalCount;
+
+            AccessibilityService.ApplyFontScale(this);
+            SemanticScreenReader.Announce(
+                $"Showing {displayedItems.Count} of {totalCount} food entries.");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", $"Could not load food entries: {ex.Message}", "OK");
+        }
+        finally
+        {
+            isLoadingMore = false;
+            ShowLoadingIndicator(false);
+        }
+    }
+
+    private void ShowLoadingIndicator(bool show)
+    {
+        LoadingMoreIndicator.IsVisible = show;
+        LoadingMoreIndicator.IsRunning = show;
+    }
+
+    private async void OnRemainingItemsThresholdReached(object? sender, EventArgs e)
+    {
+        await LoadNextPageAsync();
     }
 
     private async void OnAddClicked(object? sender, EventArgs e)
@@ -128,20 +257,20 @@ public partial class MainPage : ContentPage
 
     private async void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
     {
-        await LoadFoodItemsAsync(e.NewTextValue);
+        await ResetAndLoadAsync(e.NewTextValue);
     }
 
     private async void OnSearchButtonPressed(object? sender, EventArgs e)
     {
-        await LoadFoodItemsAsync(SearchFoodBar.Text);
+        await ResetAndLoadAsync(SearchFoodBar.Text);
     }
 
     private async void OnRefreshing(object? sender, EventArgs e)
     {
-        await LoadFoodItemsAsync(SearchFoodBar.Text);
+        await ResetAndLoadAsync(SearchFoodBar.Text);
         FoodRefreshView.IsRefreshing = false;
         var source = FoodService.LastLoadUsedMockApi ? "mockapi.io" : "local fallback data";
-        SemanticScreenReader.Announce($"Food list refreshed. Current source: {source}.");
+        SemanticScreenReader.Announce($"Food list refreshed and re-randomized. Current source: {source}.");
     }
 
     private async void OnRandomClicked(object? sender, EventArgs e)

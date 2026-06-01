@@ -2,7 +2,9 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:foodApp.Models"
+             xmlns:behaviors="clr-namespace:foodApp.Behaviors"
              x:Class="foodApp.Pages.MainPage"
+             x:Name="ThisPage"
              Title="Food Encyclopedia"
              BackgroundColor="{AppThemeBinding Light=White, Dark=#1A161C}">
     <Grid RowDefinitions="Auto,*">
@@ -61,17 +63,30 @@
             <CollectionView x:Name="FoodCollection"
                             SelectionMode="None"
                             EmptyView="No matching food entries found."
+                            RemainingItemsThreshold="2"
+                            RemainingItemsThresholdReached="OnRemainingItemsThresholdReached"
                             Margin="14,8,14,14">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="1"
+                                     HorizontalItemSpacing="10"
+                                     VerticalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:FoodItem">
                         <Border StrokeThickness="1"
                                 Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
                                 BackgroundColor="{AppThemeBinding Light=White, Dark=#25202A}"
                                 Padding="12"
-                                Margin="0,0,0,10">
+                                Margin="0">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="10" />
                             </Border.StrokeShape>
+                            <Border.Behaviors>
+                                <behaviors:LongPressBehavior
+                                    Command="{Binding Source={x:Reference ThisPage}, Path=LongPressCommand}"
+                                    CommandParameter="{Binding Name}" />
+                            </Border.Behaviors>
                             <Grid ColumnDefinitions="70,*" ColumnSpacing="12">
                                 <Border StrokeThickness="1"
                                         Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
@@ -127,5 +142,16 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
+
+        <!-- Loading indicator at the bottom -->
+        <ActivityIndicator Grid.Row="1"
+                           x:Name="LoadingMoreIndicator"
+                           IsVisible="False"
+                           IsRunning="False"
+                           VerticalOptions="End"
+                           HorizontalOptions="Center"
+                           Margin="0,0,0,20"
+                           HeightRequest="30"
+                           Color="#C3B9D9" />
     </Grid>
 </ContentPage>
