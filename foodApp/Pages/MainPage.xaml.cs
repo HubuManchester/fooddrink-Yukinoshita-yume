@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using System.Windows.Input;
+using foodApp.Behaviors;
 using foodApp.Models;
 using foodApp.Services;
 
@@ -18,13 +18,13 @@ public partial class MainPage : ContentPage
     private string? lastQuery;
     private readonly ObservableCollection<FoodItem> displayedItems = [];
 
-    public ICommand LongPressCommand { get; }
-
     public MainPage()
     {
         InitializeComponent();
         FoodCollection.ItemsSource = displayedItems;
-        LongPressCommand = new Command<string>(async (foodName) => await OnLongPressAsync(foodName));
+        // Wire up the global long-press handler (x:Reference doesn't work
+        // inside DataTemplate, so the behavior uses this static callback).
+        LongPressBehavior.GlobalHandler = async (foodName) => await OnLongPressAsync(foodName);
     }
 
     protected override async void OnAppearing()
@@ -130,6 +130,7 @@ public partial class MainPage : ContentPage
         try
         {
             var food = FoodService.GetRandom();
+            if (food is null) return;
             HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
 
             var goToDetails = await DisplayAlert(

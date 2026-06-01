@@ -20,47 +20,10 @@ public static class FoodService
         PropertyNameCaseInsensitive = true
     };
 
-    // Minimal hardcoded fallback – only used when both the saved file
-    // and the embedded resource are unavailable.
-    private static readonly List<FoodItem> MinimalFallbackItems =
-    [
-        new()
-        {
-            Id = "fb1", Name = "Peking Duck", ImageUrl = "food_peking_duck.png",
-            Region = "Beijing, China", UploadedBy = "system",
-            Description = "Crispy roast duck served with thin pancakes, spring onions, and sweet bean sauce.",
-            Tags = "beijing duck roast chinese"
-        },
-        new()
-        {
-            Id = "fb2", Name = "Sushi Platter", ImageUrl = "food_sushi.png",
-            Region = "Tokyo, Japan", UploadedBy = "system",
-            Description = "Assorted nigiri and maki rolls with fresh salmon, tuna, and shrimp.",
-            Tags = "sushi japanese seafood"
-        },
-        new()
-        {
-            Id = "fb3", Name = "Margherita Pizza", ImageUrl = "food_pizza.png",
-            Region = "Naples, Italy", UploadedBy = "system",
-            Description = "Classic pizza with San Marzano tomatoes, fresh mozzarella, and basil.",
-            Tags = "pizza italian vegetarian"
-        },
-        new()
-        {
-            Id = "fb4", Name = "Tom Yum Goong", ImageUrl = "food_tomyum.png",
-            Region = "Bangkok, Thailand", UploadedBy = "system",
-            Description = "Spicy and sour shrimp soup with lemongrass, galangal, and lime leaves.",
-            Tags = "thai soup spicy shrimp"
-        },
-        new()
-        {
-            Id = "fb5", Name = "Matcha Layer Cake", ImageUrl = "food_matcha_cake.png",
-            Region = "Kyoto, Japan", UploadedBy = "system",
-            Description = "Delicate layered sponge cake with premium matcha cream and a dusting of green tea powder.",
-            Tags = "dessert matcha cake japanese"
-        }
-    ];
-
+    // All seed data lives in Resources/Raw/test_food_data.json.
+    // At runtime it is merged with user-added items and persisted
+    // to food_data.json.  If neither source is available, the
+    // collection starts empty.
     private static List<FoodItem> cachedItems = [];
     private static bool isLoaded;
 
@@ -94,11 +57,8 @@ public static class FoodService
                 }
             }
 
-            // If the persisted file had fewer seed items (old version), save the merge.
             if (persisted.Count < merged.Count)
-            {
                 await SaveInternalAsync(merged);
-            }
 
             cachedItems = merged;
         }
@@ -113,8 +73,7 @@ public static class FoodService
         }
         else
         {
-            cachedItems = new List<FoodItem>(MinimalFallbackItems);
-            await SaveInternalAsync(cachedItems);
+            cachedItems = [];
         }
 
         isLoaded = true;
@@ -238,10 +197,10 @@ public static class FoodService
         return item;
     }
 
-    public static FoodItem GetRandom()
+    public static FoodItem? GetRandom()
     {
-        var items = cachedItems.Count > 0 ? cachedItems : MinimalFallbackItems;
-        return items[Random.Shared.Next(items.Count)];
+        if (cachedItems.Count == 0) return null;
+        return cachedItems[Random.Shared.Next(cachedItems.Count)];
     }
 
     public static async Task<(IReadOnlyList<FoodItem> Items, int TotalCount)> GetPagedAsync(

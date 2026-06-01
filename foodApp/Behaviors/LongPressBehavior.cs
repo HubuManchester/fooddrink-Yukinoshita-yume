@@ -1,24 +1,19 @@
-using System.Windows.Input;
-
 namespace foodApp.Behaviors;
 
 public class LongPressBehavior : Behavior<View>
 {
     private bool alreadyTriggered;
-    private CancellationTokenSource? longPressCts;
-    private bool nativeAttached;
+    private CancellationTokenSource? pressTimerCts;
+    private Point? pressPoint;
+    private PointerGestureRecognizer? pointerRecognizer;
 
-    public static readonly BindableProperty CommandProperty =
-        BindableProperty.Create(nameof(Command), typeof(ICommand), typeof(LongPressBehavior));
+    public static Action<string>? GlobalHandler { get; set; }
 
     public static readonly BindableProperty CommandParameterProperty =
-        BindableProperty.Create(nameof(CommandParameter), typeof(string), typeof(LongPressBehavior));
-
-    public ICommand? Command
-    {
-        get => (ICommand?)GetValue(CommandProperty);
-        set => SetValue(CommandProperty, value);
-    }
+        BindableProperty.Create(
+            nameof(CommandParameter),
+            typeof(string),
+            typeof(LongPressBehavior));
 
     public string? CommandParameter
     {
@@ -29,72 +24,97 @@ public class LongPressBehavior : Behavior<View>
     protected override void OnAttachedTo(View bindable)
     {
         base.OnAttachedTo(bindable);
-        bindable.InputTransparent = false;
-        bindable.HandlerChanged += OnViewHandlerChanged;
+
+        pointerRecognizer = new PointerGestureRecognizer();
+        pointerRecognizer.PointerPressed += OnPointerPressed;
+        pointerRecognizer.PointerMoved  += OnPointerMoved;
+        pointerRecognizer.PointerReleased += OnPointerReleased;
+        pointerRecognizer.PointerExited += OnPointerReleased;
+        bindable.GestureRecognizers.Add(pointerRecognizer);
     }
 
     protected override void OnDetachingFrom(View bindable)
     {
-        bindable.HandlerChanged -= OnViewHandlerChanged;
-        longPressCts?.Cancel();
-        longPressCts?.Dispose();
-        longPressCts = null;
+        if (pointerRecognizer is not null)
+        {
+            pointerRecognizer.PointerPressed  -= OnPointerPressed;
+            pointerRecognizer.PointerMoved   -= OnPointerMoved;
+            pointerRecognizer.PointerReleased -= OnPointerReleased;
+            pointerRecognizer.PointerExited  -= OnPointerReleased;
+            bindable.GestureRecognizers.Remove(pointerRecognizer);
+            pointerRecognizer = null;
+        }
+
+        CancelTimer();
         base.OnDetachingFrom(bindable);
     }
 
-    private void OnViewHandlerChanged(object? sender, EventArgs e)
+    private void OnPointerPressed(object? sender, PointerEventArgs e)
     {
-        if (sender is not View view || nativeAttached) return;
-
-#if ANDROID
-        if (view.Handler?.PlatformView is Android.Views.View nativeView)
-        {
-            nativeView.LongClick += (_, _) => FireCommand();
-            nativeAttached = true;
-        }
-#elif IOS || MACCATALYST
-        if (view.Handler?.PlatformView is UIKit.UIView iosView)
-        {
-            var recognizer = new UIKit.UILongPressGestureRecognizer(gr =>
-            {
-                if (gr.State == UIKit.UIGestureRecognizerState.Began)
-                {
-                    FireCommand();
-                }
-            });
-            recognizer.MinimumPressDuration = 0.8;
-            iosView.AddGestureRecognizer(recognizer);
-            nativeAttached = true;
-        }
-#elif WINDOWS
-        if (view.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement winView)
-        {
-            winView.Holding += (_, args) =>
-            {
-                if (args.HoldingState == Microsoft.UI.Input.HoldingState.Started)
-                {
-                    FireCommand();
-                }
-            };
-            nativeAttached = true;
-        }
-#endif
+        pressPoint = e.GetPosition(null);
+        StartTimer();
     }
 
-    private void FireCommand()
+    private void OnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (pressPoint is { } start)
+        {
+            var current = e.GetPosition(null);
+            if (current is null) return;
+            var dx = Math.Abs(current.Value.X - start.X);
+            var dy = Math.Abs(current.Value.Y - start.Y);
+            if (dx > 20 || dy > 20)
+                CancelTimer();
+        }
+    }
+
+    private void OnPointerReleased(object? sender, PointerEventArgs e)
+    {
+        CancelTimer();
+    }
+
+    private void StartTimer()
+    {
+        CancelTimer();
+        pressTimerCts = new CancellationTokenSource();
+        var token = pressTimerCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(800, token);
+                if (!token.IsCancellationRequested)
+                    MainThread.BeginInvokeOnMainThread(Fire);
+            }
+            catch (TaskCanceledException) { }
+            catch (OperationCanceledException) { }
+        }, token);
+    }
+
+    private void CancelTimer()
+    {
+        if (pressTimerCts is null) return;
+        pressTimerCts.Cancel();
+        pressTimerCts.Dispose();
+        pressTimerCts = null;
+        pressPoint = null;
+    }
+
+    private void Fire()
     {
         if (alreadyTriggered) return;
         alreadyTriggered = true;
+        CancelTimer();
 
-        if (Command is not null && Command.CanExecute(CommandParameter))
-        {
-            Command.Execute(CommandParameter);
-        }
+        var handler = GlobalHandler;
+        var param = CommandParameter;
+        if (handler is not null && param is not null)
+            handler(param);
 
-        // Reset after a short delay to allow next long press
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
         {
-            await Task.Delay(500);
+            await Task.Delay(800);
             alreadyTriggered = false;
         });
     }
