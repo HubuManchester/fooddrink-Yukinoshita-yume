@@ -1,97 +1,97 @@
-# 食物图鉴 (Food Encyclopedia)
+# Food Encyclopedia (foodApp)
 
-基于 .NET MAUI 的跨平台移动应用，用于浏览、搜索和分享世界各地美食。
+A cross-platform mobile application built with .NET MAUI for browsing, searching, and sharing food from around the world.
 
-## 功能
+## Features
 
-- **食物图鉴浏览**：查看食物名称、地区、描述和上传者信息
-- **搜索**：按名称、地区、描述、标签搜索食物
-- **用户系统**：用户名密码注册和登录（含10个测试用户，密码均为"123"）
-- **上传食物**：添加新的食物条目，包含名称、地区、描述和拍照/相册图片
-- **地图选地区**：通过原生地图（Google Maps / Apple Maps）选择食物地区，支持手动输入
-- **摇一摇**：摇动设备弹出随机食物推荐
-- **下拉刷新**：下拉重新随机排列所有食物卡片
-- **上滑加载更多**：滚动到底部自动加载下一页（每页16条），已加载卡片保留
-- **平板适配**：根据屏幕宽度自动切换1/2/3/4列网格布局
-- **长按搜索**：长按食物卡片弹出对话框，可跳转浏览器搜索该食物
-- **语音播放**：在详情页点击播放按钮，TTS 朗读食物描述
-- **主题切换**：支持浅色/深色/跟随系统主题
-- **大字体模式**：无障碍字体放大（1.22倍）
+- **Food Encyclopedia**: Browse food entries with name, region, description, and uploader info
+- **Search**: Filter foods by name, region, description, or tags
+- **User System**: Register and login with username and password (10 test users included, all with password "123")
+- **Upload Food**: Add new food entries with name, region, description, and camera/gallery photo
+- **Map Location Picker**: Select region via native map (Google Maps / Apple Maps), or type manually
+- **Shake-to-Random**: Shake the device to get a random food recommendation
+- **Pull-to-Refresh**: Pull down to re-randomize all food cards
+- **Scroll-to-Load-More**: Scroll to the bottom to load the next page (16 items per page), previous items are kept
+- **Tablet Adaptive Grid**: Automatically switches between 1/2/3/4 columns based on screen width
+- **Long-Press Browser Search**: Long-press a food card → vibration → dialog → opens browser to search the food name
+- **Voice Playback**: Tap the speaker button on the detail page to hear the description read aloud (TTS)
+- **Theme Support**: Light, dark, and system-following theme modes
+- **Large Text Mode**: Accessibility font scaling (1.22x) across all pages
 
-## 技术架构
+## Tech Stack
 
-- **框架**：.NET MAUI (net9.0)
-- **数据来源**：支持从 mockapi.io REST API 获取数据，网络不可用时自动使用本地兜底数据
-- **测试数据**：50条食物数据 + 10个测试用户预置在 JSON 资源文件中
-- **本地存储**：用户数据和食物数据通过 JSON 文件持久化
+- **Framework**: .NET MAUI (net9.0)
+- **Data Source**: mockapi.io REST API with local fallback data when network is unavailable
+- **Test Data**: 50 food entries + 10 test users embedded as JSON resource files
+- **Local Storage**: User and food data persisted via JSON files
 
-## 项目结构
+## Project Structure
 
 ```
 foodApp/
   Behaviors/
-    LongPressBehavior.cs   # 跨平台长按行为组件
+    LongPressBehavior.cs   # Cross-platform long-press behavior
   Models/
-    FoodItem.cs            # 食物数据模型
-    User.cs                # 用户模型
+    FoodItem.cs            # Food data model
+    User.cs                # User model
   Services/
-    MockApiConfig.cs       # mockapi.io 配置
-    FoodService.cs         # 食物数据服务（API + JSON资源 + 本地兜底）
-    UserService.cs         # 用户认证服务（JSON资源 + 本地持久化）
-    AccessibilityService.cs # 无障碍字体缩放
-    SpeechService.cs       # 文字转语音服务（TTS）
-    MapConfig.cs           # Google Maps API Key 配置
+    MockApiConfig.cs       # mockapi.io configuration
+    FoodService.cs         # Food data service (API + JSON resource + local fallback)
+    UserService.cs         # User authentication service (JSON resource + local persistence)
+    AccessibilityService.cs # Font scaling for accessibility
+    SpeechService.cs       # Text-to-speech service
+    MapConfig.cs           # Google Maps API Key config
   Pages/
-    LoginPage.xaml         # 登录页
-    RegisterPage.xaml      # 注册页
-    MainPage.xaml          # 主页（食物卡片网格 + 分页）
-    AddFoodPage.xaml       # 添加食物
-    FoodDetailPage.xaml    # 食物详情（含语音播放按钮）
-    MapPage.xaml           # 地图选址
-    SettingsPage.xaml      # 设置页（主题 + 大字体）
-  Platforms/Android/       # Android 平台配置
+    LoginPage.xaml         # Login page
+    RegisterPage.xaml      # Registration page
+    MainPage.xaml          # Home page (food card grid + pagination)
+    AddFoodPage.xaml       # Add food entry
+    FoodDetailPage.xaml    # Food detail page (with voice playback button)
+    MapPage.xaml           # Map location picker
+    SettingsPage.xaml      # Settings page (theme + large text)
+  Platforms/Android/       # Android platform config
   Resources/
     Raw/
-      test_food_data.json  # 50条测试食物数据
-      test_users.json      # 10个测试用户数据
-    Images/                # 食物SVG插图
-    Styles/                # 全局样式
-    Fonts/                 # 字体文件
+      test_food_data.json  # 50 test food entries
+      test_users.json      # 10 test user accounts
+    Images/                # Food SVG illustrations
+    Styles/                # Global styles
+    Fonts/                 # Font files
 ```
 
-## 构建与运行
+## Build & Run
 
-### 前置要求
+### Prerequisites
 
 - .NET 9.0 SDK
-- Visual Studio 2022（含 .NET MAUI 工作负载）
+- Visual Studio 2022 with .NET MAUI workload
 
-### Windows 构建
+### Windows Build
 
 ```powershell
 dotnet build foodApp\foodApp.csproj -f net9.0-windows10.0.19041.0
 ```
 
-### Android 构建
+### Android Build
 
 ```powershell
 dotnet build foodApp\foodApp.csproj -f net9.0-android
 ```
 
-## MockAPI 配置
+## MockAPI Configuration
 
-参见项目根目录下的 `mockapi配置说明.md`。
+See `mockapi配置说明.md` in the project root.
 
-## 演示建议
+## Demo Script
 
-1. 启动应用，展示登录/注册页面（可用"chef_li"/"123"等测试账户直接登录）
-2. 浏览食物图鉴网格，观察卡片随机排列
-3. 下拉刷新 → 卡片重新随机排列
-4. 向下滚动 → 自动加载更多卡片
-5. **长按**某张食物卡片 → 震动 → 弹出搜索确认 → 跳转浏览器
-6. 搜索特定食物
-7. 点击 Details → 查看详情 → 点击 🔊 Play 按钮听语音朗读
-8. 添加新的食物条目（拍照/相册 + 地图选址）
-9. 摇一摇设备 → 随机推荐
-10. 切换深色/浅色主题
-11. 开启大字体模式
+1. Launch the app — login/register page appears (use "chef_li" / "123" to log in directly)
+2. Browse the food card grid — cards are randomly ordered
+3. Pull down to refresh — cards re-randomize
+4. Scroll down — more cards load automatically
+5. **Long-press** a food card → vibration → confirm dialog → browser opens with search results
+6. Search for a specific food
+7. Tap Details → view full info → tap 🔊 Play to hear the description read aloud
+8. Add a new food entry (take photo / pick from gallery + select region on map)
+9. Shake the device → random food recommendation pops up
+10. Switch between light and dark themes
+11. Enable large text mode
