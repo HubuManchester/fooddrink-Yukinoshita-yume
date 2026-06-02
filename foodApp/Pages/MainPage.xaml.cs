@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using foodApp.Behaviors;
 using foodApp.Models;
 using foodApp.Services;
 
@@ -22,9 +21,6 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         FoodCollection.ItemsSource = displayedItems;
-        // Wire up the global long-press handler (x:Reference doesn't work
-        // inside DataTemplate, so the behavior uses this static callback).
-        LongPressBehavior.GlobalHandler = async (foodName) => await OnLongPressAsync(foodName);
     }
 
     protected override async void OnAppearing()
@@ -151,20 +147,10 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private async Task OnLongPressAsync(string foodName)
+    private async void OnSearchClicked(object? sender, EventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(foodName)) return;
-
-        // Vibrate / haptic feedback
-        try
-        {
-            HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
-            Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(200));
-        }
-        catch
-        {
-            // Vibration not available on this device
-        }
+        if (sender is not Button button || button.CommandParameter is not string foodName
+            || string.IsNullOrWhiteSpace(foodName)) return;
 
         var openBrowser = await DisplayAlert(
             "Search in Browser",

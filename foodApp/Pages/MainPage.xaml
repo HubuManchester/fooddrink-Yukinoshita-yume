@@ -2,7 +2,6 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:foodApp.Models"
-             xmlns:behaviors="clr-namespace:foodApp.Behaviors"
              x:Class="foodApp.Pages.MainPage"
              Title="Food Encyclopedia"
              BackgroundColor="{AppThemeBinding Light=White, Dark=#1A161C}">
@@ -81,10 +80,6 @@
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="10" />
                             </Border.StrokeShape>
-                            <Border.Behaviors>
-                                <behaviors:LongPressBehavior
-                                    CommandParameter="{Binding Name}" />
-                            </Border.Behaviors>
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="70,*" ColumnSpacing="12" RowSpacing="4">
                                 <!-- Image (spans first 4 rows to align with text) -->
                                 <Border Grid.Row="0" Grid.RowSpan="4"
@@ -134,16 +129,24 @@
                                     </Label.FormattedText>
                                 </Label>
 
-                                <!-- Details button — bottom-right -->
-                                <Button Grid.Column="1" Grid.Row="4"
-                                        Text="Details"
-                                        Padding="12,6"
-                                        FontSize="12"
-                                        HorizontalOptions="End"
-                                        BackgroundColor="#C3B9D9"
-                                        TextColor="#FFFFFF"
-                                        CommandParameter="{Binding Id}"
-                                        Clicked="OnDetailsClicked" />
+                                <!-- Search + Details buttons — bottom-right -->
+                                <HorizontalStackLayout Grid.Column="1" Grid.Row="4"
+                                                       HorizontalOptions="End" Spacing="6">
+                                    <Button Text="Search"
+                                            Padding="10,6"
+                                            FontSize="11"
+                                            BackgroundColor="#DEB7C1"
+                                            TextColor="#FFFFFF"
+                                            CommandParameter="{Binding Name}"
+                                            Clicked="OnSearchClicked" />
+                                    <Button Text="Details"
+                                            Padding="10,6"
+                                            FontSize="11"
+                                            BackgroundColor="#C3B9D9"
+                                            TextColor="#FFFFFF"
+                                            CommandParameter="{Binding Id}"
+                                            Clicked="OnDetailsClicked" />
+                                </HorizontalStackLayout>
                             </Grid>
                         </Border>
                     </DataTemplate>
