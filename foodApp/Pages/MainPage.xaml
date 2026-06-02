@@ -81,7 +81,7 @@
                                 <RoundRectangle CornerRadius="10" />
                             </Border.StrokeShape>
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="70,*" ColumnSpacing="12" RowSpacing="4">
-                                <!-- Image (spans first 4 rows to align with text) -->
+                                <!-- Image placeholder -->
                                 <Border Grid.Row="0" Grid.RowSpan="4"
                                         StrokeThickness="1"
                                         Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
@@ -92,10 +92,17 @@
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="8" />
                                     </Border.StrokeShape>
-                                    <Image Source="{Binding ImageUrl}"
-                                           Aspect="AspectFill"
-                                           HeightRequest="70"
-                                           WidthRequest="70" />
+                                    <Grid>
+                                        <Label Text="No image"
+                                               FontSize="9"
+                                               TextColor="{AppThemeBinding Light=#C0C0C0, Dark=#706878}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                        <Image Source="{Binding ImageUrl}"
+                                               Aspect="AspectFill"
+                                               HeightRequest="70"
+                                               WidthRequest="70" />
+                                    </Grid>
                                 </Border>
 
                                 <!-- Name -->

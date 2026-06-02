@@ -53,6 +53,7 @@ public partial class FoodDetailPage : ContentPage
 
         if (!string.IsNullOrWhiteSpace(currentItem.ImageUrl))
         {
+            FoodImage.HeightRequest = 200;
             if (currentItem.ImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             {
                 FoodImage.Source = ImageSource.FromUri(new Uri(currentItem.ImageUrl));
@@ -64,9 +65,10 @@ public partial class FoodDetailPage : ContentPage
         }
         else
         {
-            FoodImage.HeightRequest = 0;
+            // Keep the placeholder text visible — just clear the image.
+            FoodImage.Source = null;
         }
-    }
+        }
 
     protected override void OnDisappearing()
     {
@@ -102,10 +104,10 @@ public partial class FoodDetailPage : ContentPage
             PlayDescriptionButton.Text = "⏹  Stop";
             await SpeechService.SpeakAsync(currentItem.Description);
         }
-        catch (Exception ex)
+        catch
         {
             await DisplayAlert("Playback Error",
-                $"Could not play description: {ex.Message}", "OK");
+                "Could not play the description. Please try again.", "OK");
         }
         finally
         {

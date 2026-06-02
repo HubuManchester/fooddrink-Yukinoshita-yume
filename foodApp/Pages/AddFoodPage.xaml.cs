@@ -51,10 +51,10 @@ public partial class AddFoodPage : ContentPage
             await DisplayAlert("Permission denied",
                 "Camera permission is required. Please enable it in device settings.", "OK");
         }
-        catch (Exception ex)
+        catch
         {
             await DisplayAlert("Error",
-                $"Could not take photo: {ex.Message}", "OK");
+                "Could not take a photo. Please try again.", "OK");
         }
     }
 
@@ -73,10 +73,10 @@ public partial class AddFoodPage : ContentPage
             await DisplayAlert("Permission denied",
                 "Gallery access is required. Please enable it in device settings.", "OK");
         }
-        catch (Exception ex)
+        catch
         {
             await DisplayAlert("Error",
-                $"Could not load photo from gallery: {ex.Message}", "OK");
+                "Could not load the photo from your gallery. Please try again.", "OK");
         }
     }
 
@@ -121,20 +121,16 @@ public partial class AddFoodPage : ContentPage
             HapticFeedback.Default.Perform(HapticFeedbackType.Click);
             SemanticScreenReader.Announce("Food entry saved.");
 
-            await DisplayAlert(
-                "Saved",
-                MockApiConfig.IsConfigured
-                    ? "The food entry has been saved to mockapi.io."
-                    : "The food entry has been saved to local storage.",
-                "OK");
+            await DisplayAlert("Saved", "Food entry added successfully.", "OK");
 
             await Shell.Current.GoToAsync("..");
         }
-        catch (Exception ex)
+        catch
         {
-            ShowValidation($"Could not save the entry: {ex.Message}");
+            ShowValidation("Something went wrong while saving. Please try again.");
         }
-    }
+        }
+    
 
     private string? ValidateForm()
     {

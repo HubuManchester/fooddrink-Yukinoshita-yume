@@ -141,9 +141,9 @@ public partial class MainPage : ContentPage
                     $"{nameof(FoodDetailPage)}?id={Uri.EscapeDataString(food.Id)}");
             }
         }
-        catch (Exception ex)
+        catch
         {
-            await DisplayAlert("Error", $"Could not load random food: {ex.Message}", "OK");
+            await DisplayAlert("Error", "Could not load a random food right now. Please try again.", "OK");
         }
     }
 
@@ -166,10 +166,10 @@ public partial class MainPage : ContentPage
                 var url = $"https://www.google.com/search?q={encodedName}+food";
                 await Browser.Default.OpenAsync(url, BrowserLaunchMode.SystemPreferred);
             }
-            catch (Exception ex)
+            catch
             {
                 await DisplayAlert("Error",
-                    $"Could not open browser: {ex.Message}", "OK");
+                    "Could not open the browser. Please try again.", "OK");
             }
         }
     }
@@ -207,9 +207,9 @@ public partial class MainPage : ContentPage
             SemanticScreenReader.Announce(
                 $"Showing {displayedItems.Count} of {totalCount} food entries.");
         }
-        catch (Exception ex)
+        catch
         {
-            await DisplayAlert("Error", $"Could not load food entries: {ex.Message}", "OK");
+            await DisplayAlert("Error", "Could not load the food list. Please pull down to retry.", "OK");
         }
         finally
         {

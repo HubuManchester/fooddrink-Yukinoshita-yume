@@ -48,9 +48,16 @@
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="8" />
                         </Border.StrokeShape>
-                        <Image x:Name="FoodImage"
-                               HeightRequest="200"
-                               Aspect="AspectFit" />
+                        <Grid>
+                            <Label Text="Image not available"
+                                   FontSize="14"
+                                   TextColor="{AppThemeBinding Light=#C0C0C0, Dark=#706878}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                            <Image x:Name="FoodImage"
+                                   HeightRequest="200"
+                                   Aspect="AspectFit" />
+                        </Grid>
                     </Border>
                 </VerticalStackLayout>
             </Border>

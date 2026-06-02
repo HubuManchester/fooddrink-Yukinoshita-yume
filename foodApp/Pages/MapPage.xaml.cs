@@ -54,9 +54,9 @@ public partial class MapPage : ContentPage
             SelectedRegion = regionName;
             await Navigation.PopAsync();
         }
-        catch (Exception ex)
+        catch
         {
-            StatusLabel.Text = $"Could not determine location: {ex.Message}";
+            StatusLabel.Text = "Could not determine the location. Please check your network or type the region name manually.";
             StatusLabel.TextColor = Colors.Red;
         }
     }

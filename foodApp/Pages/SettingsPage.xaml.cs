@@ -87,10 +87,10 @@ public partial class SettingsPage : ContentPage
 
             Application.Current!.Windows[0].Page = new NavigationPage(new LoginPage());
         }
-        catch (Exception ex)
+        catch
         {
             await DisplayAlert("Error",
-                $"Could not clear cache: {ex.Message}", "OK");
+                "Could not clear the cache. Please try again.", "OK");
         }
     }
 
