@@ -93,6 +93,33 @@
                     BorderWidth="1"
                     Clicked="OnLogoutClicked" />
 
+            <!-- Cache section -->
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light=#E8E0E8, Dark=#3A3040}"
+                    BackgroundColor="{AppThemeBinding Light=White, Dark=#25202A}"
+                    Padding="14">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="10" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="10">
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="4">
+                        <Label Text="Clear Cache"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#DEB7C1" />
+                        <Label Grid.Row="1"
+                               Text="Delete all local food and user data and reload the defaults. You will be logged out."
+                               FontSize="12"
+                               TextColor="{AppThemeBinding Light=#888, Dark=#B0A8B8}" />
+                    </Grid>
+                    <Button Text="Clear All Local Data"
+                            FontSize="13"
+                            BackgroundColor="#C06060"
+                            TextColor="#FFFFFF"
+                            Clicked="OnClearCacheClicked" />
+                </VerticalStackLayout>
+            </Border>
+
             <Label x:Name="SettingsStatusLabel"
                    Text="Settings ready."
                    FontAttributes="Bold"

@@ -102,6 +102,27 @@ public static class UserService
     }
 
     // ----------------------------------------------------------------
+    //  Cache management
+    // ----------------------------------------------------------------
+
+    public static async Task ClearCacheAsync()
+    {
+        Logout();
+
+        try
+        {
+            if (File.Exists(FilePath))
+                File.Delete(FilePath);
+        }
+        catch
+        {
+        }
+
+        users = [];
+        await LoadAsync();
+    }
+
+    // ----------------------------------------------------------------
     //  Persistence helpers
     // ----------------------------------------------------------------
 

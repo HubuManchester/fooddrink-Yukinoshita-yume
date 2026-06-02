@@ -55,6 +55,45 @@ public partial class SettingsPage : ContentPage
             : "Turn on the switch to enlarge this preview and all page text.";
     }
 
+    private async void OnClearCacheClicked(object? sender, EventArgs e)
+    {
+        var confirmed = await DisplayAlert(
+            "Clear All Local Data",
+            "This will delete all local food entries, user accounts, and uploaded photos. "
+            + "The app will reload the default 50 test foods and 10 test users. "
+            + "You will be logged out.\n\nThis cannot be undone.",
+            "Clear",
+            "Cancel");
+
+        if (!confirmed) return;
+
+        try
+        {
+            // Also clean up uploaded food images
+            var imagesDir = Path.Combine(FileSystem.AppDataDirectory, "food_images");
+            if (Directory.Exists(imagesDir))
+            {
+                Directory.Delete(imagesDir, recursive: true);
+            }
+
+            await Task.WhenAll(
+                FoodService.ClearCacheAsync(),
+                UserService.ClearCacheAsync());
+
+            Announce("Cache cleared. Restarting with default data...");
+
+            // Brief pause so the user sees the message
+            await Task.Delay(800);
+
+            Application.Current!.Windows[0].Page = new NavigationPage(new LoginPage());
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error",
+                $"Could not clear cache: {ex.Message}", "OK");
+        }
+    }
+
     private void OnLogoutClicked(object? sender, EventArgs e)
     {
         UserService.Logout();

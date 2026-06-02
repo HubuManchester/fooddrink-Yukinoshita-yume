@@ -223,6 +223,27 @@ public static class FoodService
     }
 
     // ----------------------------------------------------------------
+    //  Cache management
+    // ----------------------------------------------------------------
+
+    public static async Task ClearCacheAsync()
+    {
+        try
+        {
+            if (File.Exists(SavedFilePath))
+                File.Delete(SavedFilePath);
+        }
+        catch
+        {
+        }
+
+        // Force a full reload from embedded resource on next access.
+        cachedItems = [];
+        isLoaded = false;
+        await LoadAsync();
+    }
+
+    // ----------------------------------------------------------------
     //  Internal helpers
     // ----------------------------------------------------------------
 
